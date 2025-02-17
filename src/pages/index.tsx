@@ -3,6 +3,7 @@ import Data from '../components/data';
 import React from 'react';
 import Todo from '../lib/todo';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import Head from 'next/head';
 
 export default function Home() {
   const [userData, setUserData] = React.useState<Todo[]>([])
@@ -45,6 +46,10 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <title>Todo List</title>
+        <meta name='description' content='A simple todo list app'/>
+      </Head>
       <Container>
         <Row as='header'>
             <Col as='h1' xs={9}>To Do List</Col>
