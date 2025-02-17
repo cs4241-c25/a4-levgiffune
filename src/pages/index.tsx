@@ -1,10 +1,12 @@
 import {Button, Container, Row, Col} from 'react-bootstrap'
 import Data from '../components/data';
 import React from 'react';
-import Todo from '../models/todo';
-export default function Home() {
-  const [data, setData] = React.useState<Todo[]>([])
+import Todo from '../lib/todo';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
+export default function Home() {
+  const [userData, setUserData] = React.useState<Todo[]>([])
+  
   const submit = async () => {
     const task = document.getElementById("task") as HTMLInputElement
     const date = document.getElementById("date") as HTMLInputElement
@@ -26,20 +28,31 @@ export default function Home() {
 
     if(response.status == 200){
         const items = await response.json()
-        setData(items)
+        setUserData(items)
     }
   }
 
+  const { status, data } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signIn()
+    },
+  })
+
+  if (status === "loading") {
+    return 
+  }
+
   return (
-    <div>
+    <>
       <Container>
         <Row as='header'>
             <Col as='h1' xs={9}>To Do List</Col>
             <Col xs={3}>
-              <Button type='submit' id="logout">
+              <Button onClick={() => signOut()} id="logout">
                 Log Out
                 <br/>
-                <span>username</span>
+                <span>{data?.user?.name}</span>
               </Button>
             </Col>
           </Row>
@@ -50,7 +63,7 @@ export default function Home() {
               <Col as='b' xs={3}>Due Date</Col>
               <Col as='b' xs={2}>Days Left</Col>
             </Row>
-            <Data data={data} setData={setData}/>
+            <Data data={userData} setData={setUserData}/>
             <Row>
               <Col as='input' xs={3} type="text" id="task" aria-label="task" placeholder="Add a new task..."/>
               <Col as='input' xs={3} type="date" id="date" aria-label="date"/>
@@ -62,6 +75,6 @@ export default function Home() {
               </Col>
             </Row>
       </Container>
-    </div>
-  );
+    </>
+  )
 }

@@ -1,12 +1,19 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { MongoClient, ObjectId } from 'mongodb'
+import { getServerSession } from "next-auth";
+import { options } from "./auth/[...nextauth]";
 
 
 export default async function POST(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, options)
+  if(!session || !session.user){
+    res.status(403)
+  }
+  
   const client = new MongoClient(process.env.DB!)
   await client.connect()
   const todos = await client.db('todo').collection('todo')
@@ -22,7 +29,7 @@ export default async function POST(
   }
 
   
-  const result = await todos.find({}).toArray()
+  const result = await todos.find({user: session?.user?.name}).toArray()
   client.close()
 
   for(const task of result){

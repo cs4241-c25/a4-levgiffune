@@ -1,7 +1,7 @@
 import { Button, Col, Row } from "react-bootstrap"
 import React from "react"
 import { ObjectId } from "mongodb"
-import Todo from "../models/todo"
+import Todo from "../lib/todo"
 
 const DataTable = (props: { 
     data: Todo[]; 
